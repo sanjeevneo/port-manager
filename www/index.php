@@ -34,6 +34,7 @@
         .verification-status { display: flex; flex-direction: column; gap: 0.25rem; text-align: left; font-size: 0.95rem; color: #c9d1d9; padding: 0.5rem 1rem; background-color: rgba(36, 41, 46, 0.3); border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .verification-status div { display: flex; justify-content: space-between; align-items: center; }
         .verification-status span.checkmark { font-size: 1.1rem; font-weight: bold; }
+        .footer { text-align: center; padding: 2rem; color: #8b949e; font-size: 0.875rem; }
         @media (max-width: 640px) { .container { padding: 1rem; } .header h1 { font-size: 2rem; } .controls { flex-direction: column; } .btn { width: 100%; justify-content: center; } .port-number { font-size: 3rem; } }
     </style>
 </head>
@@ -77,7 +78,7 @@
         <div class="port-display" id="portDisplay">
             <div class="port-info"></div>
             <div class="port-number" id="portNumber">-</div>
-            <div class="port-info">Safe range: 10000-59151</div>
+            <div class="port-info">Safe range: <span id="safeRange">10000-59151</span></div>
             <div class="copy-section">
                 <div class="copy-command" id="dockerCommand">docker run -p PORT:80 nginx</div>
                 <button class="btn btn-secondary" onclick="copyCommand()">
@@ -95,7 +96,7 @@
         </div>
     </div>
     <div class="footer">
-        Port Manager • Port Range: 10000-59151 • Synology NAS
+        Port Manager • Port Range: <span id="portRange">10000-59151</span> • Synology NAS
     </div>
     <div class="success-toast" id="successToast">
         Command copied to clipboard!
@@ -130,6 +131,8 @@
             try {
                 const result = await executeCommand('port');
                 currentPort = result.port;
+                document.getElementById('safeRange').textContent = `${result.min_port}-${result.max_port}`;
+                document.getElementById('portRange').textContent = `${result.min_port}-${result.max_port}`;
                 document.getElementById('portNumber').textContent = currentPort;
                 document.getElementById('dockerCommand').textContent = `docker run -p ${currentPort}:80 nginx`;
 
