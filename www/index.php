@@ -51,7 +51,7 @@
         </div>
         <div class="controls">
             <button class="btn btn-primary" onclick="generatePort()">
-                <svg xmlns="http:
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <circle cx="9" cy="9" r="1"></circle>
                     <circle cx="15" cy="9" r="1"></circle>
@@ -61,7 +61,7 @@
                 Generate Random Port
             </button>
             <button class="btn btn-secondary" onclick="showFullInfo()">
-                <svg xmlns="http:
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="16" x2="12" y2="12"></line>
                     <circle cx="12" cy="8" r="1"></circle>
@@ -69,7 +69,7 @@
                 Show Full Info
             </button>
             <button class="btn btn-secondary" onclick="toggleMindMap()">
-                <svg xmlns="http:
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20v-6m0-6V4m0 0h4m-4 0H8"></path>
                 </svg>
                 Show All Ports Map
