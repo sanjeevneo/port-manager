@@ -13,6 +13,11 @@
   - Range check: `Is it within the safe range?`
 - **Full Info**: Detailed breakdown of containers and ports.
 
+## Screenshots
+
+<img src="screenshots/screenshot1.jpeg" alt="Screenshot 1" width="600">
+<img src="screenshots/screenshot2.jpeg" alt="Screenshot 2" width="600">
+
 ## Usage
 
 Port Manager offers two ways: a web interface or a command-line tool. *Pick your flavor*
