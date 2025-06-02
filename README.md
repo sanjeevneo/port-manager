@@ -7,11 +7,12 @@
 - Checks Docker and system ports to avoid conflicts.
 - Picks a port between the range specified in the `conf.ini` file.
 - **Verifications**:
-  - Socket test: `Is it free?`
-  - Docker check: `No container using it?`
-  - System check: `No service hogging it?`
-  - Range check: `Is it within the safe range?`
-- **Full Info**: Detailed breakdown of containers and ports.
+  - Socket test: `Is it free?` ✅
+  - Docker check: `No container using it?` ✅
+  - System check: `No service hogging it?` ✅
+  - Range check: `Is it within the safe range?` ✅
+- **Full Info**: Breakdown of containers and ports.
+- **Container Map**
 
 ## Screenshots
 
