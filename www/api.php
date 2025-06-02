@@ -149,7 +149,7 @@ function formatFullOutput(array $containers, array $dockerPorts, array $systemPo
 
 function handleRequest(): void {
     $mode = $_GET['mode'] ?? 'port';
-    if (!in_array($mode, ['port', 'full', 'verify'], true)) {
+    if (!in_array($mode, ['port', 'full', 'verify', 'docker_ports'], true)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Invalid mode']);
         return;
@@ -192,6 +192,36 @@ function handleRequest(): void {
         echo json_encode(formatFullOutput($containers, $dockerPorts, $systemPorts, $port));
         return;
     }
+
+    if ($mode === 'docker_ports') {
+        $containers = getDockerContainers();
+        $dockerPorts = [];
+        foreach ($containers['running'] as $container) {
+            $ports = [];
+            $seenPorts = [];  // Use associative array for faster lookup
+            foreach ($container['ports'] as $port) {
+                $hostPort = (string)$port['host'];  // Cast to string for consistency
+                if (!isset($seenPorts[$hostPort])) {
+                    $seenPorts[$hostPort] = true;
+                    $ports[] = [
+                        'host_port' => $hostPort,
+                        'url' => "http://{$_SERVER['SERVER_ADDR']}:{$hostPort}"
+                    ];
+                }
+            }
+            if (!empty($ports)) {
+                $dockerPorts[] = [
+                    'container' => $container['name'],
+                    'ports' => $ports
+                ];
+            }
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($dockerPorts);
+        return;
+    }
+
+
 
     $port = generateAvailablePort($allUsedPorts);
     if ($port === null) {
