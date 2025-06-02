@@ -15,8 +15,9 @@
 
 ## Screenshots
 
-<img src="screenshots/screenshot1.jpeg" alt="Screenshot 1" width="600">
-<img src="screenshots/screenshot2.jpeg" alt="Screenshot 2" width="600">
+| Main | Extra Info | All Containers |
+|:------------:|:------------:|:------------:|
+| ![Screenshot 1](screenshots/screenshot1.jpeg) | ![Screenshot 2](screenshots/screenshot2.jpeg) | ![Screenshot 3](screenshots/screenshot3.jpeg) |
 
 ## Usage
 
@@ -35,10 +36,26 @@ Port Manager offers two ways: a web interface or a command-line tool. *Pick your
    ```bash
    sudo synogroup --add docker http
    ```
-5. Point your browser to `http://localhost/port-manager/index.php` and you’re set!
+5. Point your browser to `http://hostIP/port-manager/index.php` and you’re set!
 
-### Command-Line Tool (Python)
+### CLI Usage
 
+Use `api.php` with different modes:
+
+```text
+api.php?mode=<modetype>
+````
+
+Replace `<modetype>` with one of the available modes:
+
+* `port`
+* `full`
+* `verify`
+* `docker_ports`
+
+---
+
+‼️ **To be added (TBD):**
 If hosting a web interface isn’t your thing, grab the standalone Python script:
 
 1. Download `docker-run-with-port.py` from the [repository](https://github.com/sanjeevneo/port-manager).
