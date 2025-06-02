@@ -204,7 +204,9 @@ function handleRequest(): void {
         echo json_encode([
             'success' => true,
             'port' => $port,
-            'verification' => generatePortVerification($port, $dockerPorts, $systemPorts)
+            'verification' => generatePortVerification($port, $dockerPorts, $systemPorts),
+            'min_port' => MIN_SAFE_PORT,
+            'max_port' => MAX_SAFE_PORT
         ]);
     } else {
         echo json_encode(formatFullOutput($containers, $dockerPorts, $systemPorts, $port));
