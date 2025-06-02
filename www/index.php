@@ -23,7 +23,7 @@
         .port-info { color: #8b949e; margin-bottom: 1rem; }
         .copy-section { display: flex; gap: 1rem; justify-content: center; align-items: center; margin-top: 1.5rem; }
         .copy-command { background: #161b22; border: 1px solid #30363d; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-family: 'SF Mono', Monaco, monospace; font-size: 0.9rem; color: #f0f6fc; }
-        .output-container { background: #0d1117; border: 1px solid #30363d; border-radius: 0.75rem; padding: 1.5rem; margin-top: 2rem; display: none; max-height: 600px; overflow-y: auto; }
+        .output-container { background: #0d1117; border: 1px solid #30363d; border-radius: 0.75rem; padding: 1.5rem; margin-top: 2rem; margin-bottom: 2rem; display: none; max-height: 600px; overflow-y: auto; }
         .output-container pre { font-family: 'SF Mono', Monaco, monospace; font-size: 0.875rem; line-height: 1.5; color: #c9d1d9; white-space: pre-wrap; word-wrap: break-word; }
         .loading { display: none; text-align: center; padding: 2rem; }
         .spinner { border: 3px solid #30363d; border-top: 3px solid #58a6ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
@@ -34,6 +34,11 @@
         .verification-status { display: flex; flex-direction: column; gap: 0.25rem; text-align: left; font-size: 0.95rem; color: #c9d1d9; padding: 0.5rem 1rem; background-color: rgba(36, 41, 46, 0.3); border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .verification-status div { display: flex; justify-content: space-between; align-items: center; }
         .verification-status span.checkmark { font-size: 1.1rem; font-weight: bold; }
+        #port-mindmap { flex: 1; height: 60vh; margin: 20px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 0.75rem; }
+        .mindmap-controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+        .mindmap-controls input[type="text"] { flex: 1; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #30363d; background: #161b22; color: #e6edf3; }
+        .mindmap-controls button { padding: 0.5rem 1rem; background: #238636; color: white; border: none; border-radius: 0.5rem; cursor: pointer; }
+        @media (max-width: 640px) { #port-mindmap { height: 50vh; } .mindmap-controls { flex-direction: column; align-items: stretch; } }
         .footer { text-align: center; padding: 2rem; color: #8b949e; font-size: 0.875rem; }
         @media (max-width: 640px) { .container { padding: 1rem; } .header h1 { font-size: 2rem; } .controls { flex-direction: column; } .btn { width: 100%; justify-content: center; } .port-number { font-size: 3rem; } }
     </style>
@@ -46,7 +51,7 @@
         </div>
         <div class="controls">
             <button class="btn btn-primary" onclick="generatePort()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http:
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <circle cx="9" cy="9" r="1"></circle>
                     <circle cx="15" cy="9" r="1"></circle>
@@ -56,12 +61,18 @@
                 Generate Random Port
             </button>
             <button class="btn btn-secondary" onclick="showFullInfo()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http:
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="16" x2="12" y2="12"></line>
                     <circle cx="12" cy="8" r="1"></circle>
                 </svg>
                 Show Full Info
+            </button>
+            <button class="btn btn-secondary" onclick="toggleMindMap()">
+                <svg xmlns="http:
+                    <path d="M12 20v-6m0-6V4m0 0h4m-4 0H8"></path>
+                </svg>
+                Show All Ports Map
             </button>
             <button class="btn btn-secondary" onclick="clearDisplay()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -94,7 +105,112 @@
         <div class="output-container" id="outputContainer">
             <pre id="outputContent"></pre>
         </div>
+
+        <div id="mindmapSection" style="display: none;">
+            <div class="mindmap-controls">
+                <input type="text" id="searchInput" placeholder="Search node...">
+                <button onclick="searchNode()">Find</button>
+            </div>
+            <div id="port-mindmap" style="height: 400px; margin: 20px 0;"></div>
+        </div>
+
     </div>
+
+
+    <script src="js/vis-network.min.js"></script>
+    <script>
+    let network;
+    let nodes = new vis.DataSet();
+    let edges = new vis.DataSet();
+    let mindMapLoaded = false;
+
+    function toggleMindMap() {
+        const mindmapSection = document.getElementById('mindmapSection');
+
+        if (mindmapSection.style.display === 'none') {
+            if (!mindMapLoaded) {
+                fetch('api.php?mode=docker_ports')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to fetch ports data');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!Array.isArray(data) || data.length === 0) {
+                            alert('No ports data found.');
+                            return;
+                        }
+                        buildMindMap(data);
+                        mindMapLoaded = true;
+                        mindmapSection.style.display = 'block';
+                        network.redraw();
+                        network.fit();
+                    })
+                    .catch(error => {
+                        console.error('Error loading ports data:', error);
+                        alert('Failed to load ports data.');
+                    });
+            } else {
+                mindmapSection.style.display = 'block';
+                network.redraw();
+                network.fit();
+            }
+        } else {
+            mindmapSection.style.display = 'none';
+        }
+    }
+
+
+    function buildMindMap(data) {
+        nodes.clear();
+        edges.clear();
+        data.forEach(container => {
+            nodes.add({ id: container.container, label: container.container });
+            container.ports.forEach(port => {
+                const portId = `${container.container}-${port.host_port}`;
+                nodes.add({ id: portId, label: port.host_port });
+                edges.add({ from: container.container, to: portId });
+            });
+        });
+        const containerElement = document.getElementById('port-mindmap');
+        const networkData = { nodes: nodes, edges: edges };
+        const options = {
+            nodes: { shape: 'box', font: { size: 16 } },
+            edges: { arrows: 'to' }
+        };
+        network = new vis.Network(containerElement, networkData, options);
+    }
+
+    let searchMatches = [];
+    let currentMatchIndex = 0;
+
+    document.getElementById('searchInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const searchTerm = this.value.toLowerCase();
+            const allNodes = nodes.get();
+
+            if (searchMatches.length === 0 || !searchMatches[0].label.toLowerCase().includes(searchTerm)) {
+                searchMatches = allNodes.filter(node => node.label.toLowerCase().includes(searchTerm));
+                currentMatchIndex = 0;
+            } else {
+                currentMatchIndex = (currentMatchIndex + 1) % searchMatches.length;
+            }
+
+            if (searchMatches.length > 0) {
+                const node = searchMatches[currentMatchIndex];
+                network.focus(node.id, {
+                    scale: 1.5,
+                    animation: { duration: 1000, easingFunction: "easeInOutQuad" }
+                });
+                network.selectNodes([node.id]);
+            } else {
+                alert('No matches found.');
+            }
+        }
+    });
+
+
+    </script>
+
     <div class="footer">
         Port Manager • Port Range: <span id="portRange">10000-59151</span> • Synology NAS
     </div>
